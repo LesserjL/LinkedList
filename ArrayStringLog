@@ -6,10 +6,10 @@
  * @author  
  * @version 
  */
-public class ArrayStringLog implements EnhancedStringLogInterface
+public class ArrayStringLog<T>
 {
     // Instance variables
-    private String[] log;
+    private T[] log;
     private String name;
     private int size;
     
@@ -20,13 +20,13 @@ public class ArrayStringLog implements EnhancedStringLogInterface
         this.name = name;
         size = 0;
         
-        log = new String[4];
+        log =  (T[]) new Object[4];
     }
 
     // Returns the name of this StringLog.
     public String getName()
     {
-        return "name";
+        return name;
     }
 
     // Returns the logical size of this StringLog.
@@ -40,7 +40,6 @@ public class ArrayStringLog implements EnhancedStringLogInterface
     {
         return size == 0;
     }
-    
     // Returns true if this list is completely full.
     public boolean isFull()
     {
@@ -48,35 +47,35 @@ public class ArrayStringLog implements EnhancedStringLogInterface
     }
 
     // Appends the specified element to the end of this list.
-    public void add(String element)
+    public void add(T element)
     {
-        String[] log2 = new String[log.length*2];
+        T[] log2 = (T[])new Object[log.length*2];
         if(!isFull()){
-            log[size] = element;
+            log[size++] = element;
         }
         else{
            for(int i = 0; i < size; i++){
                log2[i] = log[i];
            }
-           log2[size] = log[size];
+           log2[size] = element;
            size++;
            log = log2;
         }
     }
   
     // Returns the element at the specified position in this list.
-    public String get(int index)
+    public T get(int index)
     {
         return log[index];
     }
     
     // Returns the index of the first occurance of the specified element
     // in this list, or -1 if this list does not contain the element.
-    public int indexOf(String element)
+    public int indexOf(T element)
     {
-        int index = 0;
+        int index = -1;
         for(int i = 0; i < log.length; i++){
-            if(log[i].equals(element)){
+            if(log[i] != null && log[i].equals(element)){
                 index = i;
             }
         }
@@ -107,36 +106,74 @@ public class ArrayStringLog implements EnhancedStringLogInterface
     
     // Replaces the element at the specified position in this list
     // with the specified element.  Returns what was at that location
-    public String set(int index, String element)
+    public T set(int index, T element)
     {
-        String temp = log[index];
+        T temp = log[index];
         log[index] = element;
         return temp;
     }
     
     // Inserts the specified element at the specified position in this list.
-    public void add(int index, String element)
+    public void add(int index, T element)
     {
+        
+        if(isFull()){
+            T[] log2 =  (T[]) new Object[log.length*2];
+            for(int i = 0; i < index; i++){
+                log2[i] = log[i];
+            }
+            log2[index] = element;
+            size++;
+            for(int i = index; i < size; i++){
+                log2[i+1] = log[i];
+            }
+            log = log2;
+        }
+        else{
+            T[] log2 = (T[]) new Object[log.length];
+            for(int i = 0; i < index; i++){
+                log2[i] = log[i];
+            }
+            log2[index] = element;
+            size++;
+            for(int i = index; i < size; i++){
+                log2[i+1] = log[i];
+            }
+            log = log2;
+        }
     }
     
     // Removes the element at the specified position in this list, and
     // returns the element that was removed.  Any unused array elements
     // are set to null.
-    public String remove(int index)
+    public T remove(int index)
     {
-        return "";
+        T removedElement = log[index];
+        for (int i = index; i < size - 1; i++) {
+            log[i] = log[i + 1];
+        }
+        log[size - 1] = null;
+        size--;
+        return removedElement;
     }
     
     // Removes the first occurance of the specified element from this
     // list, if it is present.  Returns true if element was found (and 
     // removed), false otherwise.
-    public boolean remove(String element)
+    public boolean remove(T element)
     {
+        int index = indexOf(element);
+        if (index != -1) {
+            remove(index);
+            return true;
+        }
         return false;
     }
     
     // Removes all of the elements from this list.
     public void clear()
     {
+        log = (T[])new Object[4];
+        size = 0;
     }
 }
